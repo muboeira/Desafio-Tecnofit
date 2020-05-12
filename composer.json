@@ -1,0 +1,21 @@
+{
+    "name": "mubo/projeto-academia",
+    "license": "",
+    "description": "Projeto simples de academia\\",
+    "type": "project",
+    "authors": [
+        {
+            "name": "Murilo Boeira Baptista",
+            "email": "muboeira@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Models\\": "src/"
+        }
+    },
+    "require": {
+        "ext-pdo": "*",
+        "ext-json": "*"
+    }
+}
