@@ -7,12 +7,30 @@ $exercicio = new \Models\Exercicio();
 
 $results = [];
 if((int)$treinoId > 0) {
-    if($action === 'getExerciciosByTreino') {
-        $results = $exercicio->fetchByTreinoId($treinoId);
-    }
 
-    if($action === 'getExerciciosNotInTreino') {
-        $results = $exercicio->fetchAllNotInTreino($treinoId);
+    switch ($action) {
+        case 'getExerciciosByTreino':
+            $results = $exercicio->fetchByTreinoId($treinoId);
+            break;
+        case 'getExerciciosNotInTreino':
+                $results = $exercicio->fetchAllNotInTreino($treinoId);
+            break;
+        case 'create':
+            $exercicioId= (int)$_POST['exercicioId'];
+            $sessoes= (int)$_POST['sessoes'];
+            if($exercicioId && $sessoes) {
+                $results = $exercicio->addExercicioToTreino($treinoId, $exercicioId, $sessoes);
+            }
+            break;
+        case 'delete':
+            $exercicioId= (int)$_POST['exercicioId'];
+            if($exercicioId) {
+                $results = $exercicio->deleteExercicioFromTreino($treinoId, $exercicioId);
+            }
+            break;
+        default:
+            return false;
+            break;
     }
 }
 

@@ -116,32 +116,35 @@ $usuarioSelect .= '</select>';
                         <input type="checkbox" class="custom-control-input" id="ativado" name="ativado">
                         <label class="custom-control-label" for="ativado">Ativado</label>
                     </div>
-                    <div class="border p-1">
-                        <h4>Adicionar novo exercício ao treino</h4>
-                        <div class="form-row mt-3 align-items-center">
-                            <div class="col-sm-4 my-1">
-                                <div class="form-group">
-                                    <label for="exercicio-select">Exercício</label>
-                                    <select class="custom-select" name="exercicio" id="exercise-select"></select>
+                    <div id="treino-exercicios">
+                        <div class="border p-1">
+                            <h4>Adicionar novo exercício ao treino</h4>
+                            <div class="form-row mt-3 align-items-center">
+                                <div class="col-sm-4 my-1">
+                                    <div class="form-group">
+                                        <label for="exercicio-select">Exercício</label>
+                                        <select class="custom-select" name="exercicio" id="exercise-select"></select>
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-4 my-1">
+                                    <div class="form-group">
+                                        <label for="sessoes">Sessões</label>
+                                        <input type="number" min="1" max="50" class="form-control" name="sessoes" id="sessoes" value="1"/>
+                                    </div>
+                                </div>
+
+                                <div class="col-auto mt-3 my-1">
+                                    <button type="button" class="btn btn-success" onclick="createExercicioOnTreino()">Adicionar</button>
                                 </div>
                             </div>
+                        </div>
 
-                            <div class="col-sm-4 my-1">
-                                <div class="form-group">
-                                    <label for="sessoes">Sessões</label>
-                                    <input type="number" min="1" max="50" class="form-control" name="sessoes" id="sessoes"/>
-                                </div>
-                            </div>
+                        <div class="mt-3" id="exercise-list">
 
-                            <div class="col-auto mt-3 my-1">
-                                <button type="submit" class="btn btn-success">Adicionar</button>
-                            </div>
                         </div>
                     </div>
 
-                    <div class="mt-3" id="exercise-list">
-
-                    </div>
                     <input type="hidden" name="id" id="id" value=""/>
                 </div>
                 <div class="modal-footer">
@@ -157,6 +160,10 @@ $usuarioSelect .= '</select>';
 <?php include_once('views/footer.php') ?>
 
 <script>
+    $('#myModal').on('hidden.bs.modal', function () {
+        $("#exercise-list").html('');
+    })
+
     function getTreino(id, action){
         $.post('ajax/baseAjax.php', {
             action : action,
@@ -167,6 +174,53 @@ $usuarioSelect .= '</select>';
             $('#nome').val(data.nome);
             $('#usuario_id').val(data.usuario_id);
             $( "#ativado" ).prop( "checked", data.ativado );
+            $('#treino-exercicios').show();
+        }, 'json');
+    }
+
+    function createExercicioOnTreino()
+    {
+        const treinoId = $('#id').val();
+
+        const exercicioId = $('#exercise-select').val();
+
+        const sessoes = $('#sessoes').val();
+
+        if(exercicioId > 0 && treinoId > 0 && sessoes > 0) {
+            $.post('ajax/treino_exercicios.php', {
+                action : 'create',
+                treinoId: treinoId,
+                exercicioId: exercicioId,
+                sessoes: sessoes
+            }, function (data){
+                let message = 'Falha no create';
+
+                if(data) {
+                    message = 'Sucesso no create';
+                    getExerciciosByTreino(treinoId);
+                    getExerciciosNotInTreino(treinoId);
+                }
+
+                alert(message);
+            }, 'json');
+        }
+    }
+
+    function deleteTreinoExercicio(treinoId, exercicioId) {
+        $.post('ajax/treino_exercicios.php', {
+            action : 'delete',
+            treinoId: treinoId,
+            exercicioId: exercicioId
+        }, function (data){
+            let message = 'Falha no delete';
+
+            if(data) {
+                message = 'Sucesso no delete';
+                getExerciciosByTreino(treinoId);
+                getExerciciosNotInTreino(treinoId);
+            }
+
+            alert(message);
         }, 'json');
     }
 
@@ -179,7 +233,13 @@ $usuarioSelect .= '</select>';
 
             const ul = $('<ul>', {class: "mylist"}).append(
                 data.map(exercicio =>
-                    $("<li>").append($("<a>").text(exercicio.nome))
+                    $("<li>").append($("<p>").text(`nome: ${exercicio.nome} sessoes: ${exercicio.sessoes}`)
+                        .append(
+                            `<button
+                                type='button' class='btn btn-danger ml-2'
+                                onclick='deleteTreinoExercicio(${exercicio.treino_id},${exercicio.id})'>
+                                Deletar
+                            </button>`))
                 )
             );
             
@@ -206,7 +266,6 @@ $usuarioSelect .= '</select>';
             });
 
         }, 'json');
-
     }
 
 
@@ -217,6 +276,7 @@ $usuarioSelect .= '</select>';
         $('#ativado').val(true);
         $('#id').val(0);
         $('#submitModalExercicio').attr('name', 'create');
+        $('#treino-exercicios').hide();
     }
 
     function modalUpdate(id){

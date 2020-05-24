@@ -68,6 +68,30 @@ class Exercicio extends BaseModel
         return $results;
     }
 
+    public function addExercicioToTreino($treinoId, $exercicioId, $sessoes) {
+        $result = $this->query(
+            'INSERT INTO treino_exercicios (treino_id, exercicio_id, sessoes)
+                        VALUES (:TREINO_ID, :EXERCICIO_ID, :SESSOES)',
+            [
+                ':TREINO_ID'  => $treinoId,
+                ':EXERCICIO_ID'  => $exercicioId,
+                ':SESSOES'  => $sessoes,
+            ]);
+
+        return $result;
+    }
+
+    public function deleteExercicioFromTreino($treinoId, $exercicioId) {
+        $results = $this->query('DELETE FROM treino_exercicios 
+                                                WHERE treino_id = :TREINO_ID 
+                                                  AND exercicio_id = :EXERCICIO_ID',[
+            ':TREINO_ID' => $treinoId,
+            ':EXERCICIO_ID' => $exercicioId,
+        ]);
+
+        return $results > 0;
+    }
+
     public function hasRelations($id)
     {
         $results = $this->select('SELECT count(*) as total FROM treino_exercicios WHERE exercicio_id = :ID', [
