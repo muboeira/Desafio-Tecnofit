@@ -137,7 +137,7 @@ class Usuario extends BaseModel {
         ));
     }
 
-    public function checkForRelation($id)
+    public function hasRelations($id)
     {
         $results = $this->select('SELECT count(*) as total FROM treinos WHERE usuario_id = :ID', [
             ':ID' => $id

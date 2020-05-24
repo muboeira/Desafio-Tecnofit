@@ -99,7 +99,7 @@ class Treino extends BaseModel
         $this->setAtivado($data['ativado'] ?? false);
     }
 
-    public function checkForRelation($id)
+    public function hasRelations($id)
     {
         $results = $this->select('SELECT count(*) as total FROM treino_exercicios WHERE treino_id = :ID', [
             ':ID' => $id
@@ -128,7 +128,7 @@ class Treino extends BaseModel
     }
 
     public function delete($id) {
-        if($this->checkForRelation($id)) {
+        if($this->hasRelations($id)) {
             return false;
         }
 

@@ -160,7 +160,7 @@ HTML;
 
         if (result) {
             $.post('ajax/baseAjax.php', {
-                action : 'checkForRelation',
+                action : 'hasRelations',
                 model: 'Usuario',
                 id: id
             }, async (relationExists) => {

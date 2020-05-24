@@ -50,7 +50,25 @@ class Exercicio extends BaseModel
         return $results[0];
     }
 
-    public function checkForRelation($id)
+    public function fetchByTreinoId($treinoId) {
+
+        $results = $this->select('SELECT * FROM treino_exercicios te INNER JOIN exercicios e ON e.id = te.exercicio_id WHERE te.treino_id = :ID', array(
+            ':ID' => $treinoId
+        ));
+
+        return $results;
+    }
+
+    public function fetchAllNotInTreino($treinoId) {
+
+        $results = $this->select('SELECT * FROM exercicios WHERE id NOT IN (SELECT exercicio_id from treino_exercicios WHERE treino_id = :ID)', array(
+            ':ID' => $treinoId
+        ));
+
+        return $results;
+    }
+
+    public function hasRelations($id)
     {
         $results = $this->select('SELECT count(*) as total FROM treino_exercicios WHERE exercicio_id = :ID', [
             ':ID' => $id
@@ -75,7 +93,7 @@ class Exercicio extends BaseModel
     }
 
     public function delete($id) {
-        if($this->checkForRelation($id)) {
+        if($this->hasRelations($id)) {
             return false;
         }
 

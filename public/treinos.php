@@ -45,7 +45,7 @@ HTML;
 
 $usuarios = $usuarioHelper->fetchAll();
 
-$usuarioSelect = '<select name="usuario_id">';
+$usuarioSelect = '<select name="usuario_id" class="custom-select">';
 
 foreach($usuarios as $key => $usuario) {
     $usuarioSelect .= <<<HTML
@@ -111,8 +111,36 @@ $usuarioSelect .= '</select>';
                     <div class="form-group">
                         <label for="usuario_id">Usuário</label>
                         <?php echo $usuarioSelect; ?>
-                        <label for="ativado">Ativado</label>
+                    </div>
+                    <div class="custom-control custom-checkbox">
                         <input type="checkbox" class="custom-control-input" id="ativado" name="ativado">
+                        <label class="custom-control-label" for="ativado">Ativado</label>
+                    </div>
+                    <div class="border p-1">
+                        <h4>Adicionar novo exercício ao treino</h4>
+                        <div class="form-row mt-3 align-items-center">
+                            <div class="col-sm-4 my-1">
+                                <div class="form-group">
+                                    <label for="exercicio-select">Exercício</label>
+                                    <select class="custom-select" name="exercicio" id="exercise-select"></select>
+                                </div>
+                            </div>
+
+                            <div class="col-sm-4 my-1">
+                                <div class="form-group">
+                                    <label for="sessoes">Sessões</label>
+                                    <input type="number" min="1" max="50" class="form-control" name="sessoes" id="sessoes"/>
+                                </div>
+                            </div>
+
+                            <div class="col-auto mt-3 my-1">
+                                <button type="submit" class="btn btn-success">Adicionar</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-3" id="exercise-list">
+
                     </div>
                     <input type="hidden" name="id" id="id" value=""/>
                 </div>
@@ -129,7 +157,7 @@ $usuarioSelect .= '</select>';
 <?php include_once('views/footer.php') ?>
 
 <script>
-    function carregaDadosClienteJSon(id, action){
+    function getTreino(id, action){
         $.post('ajax/baseAjax.php', {
             action : action,
             model: 'Treino',
@@ -138,9 +166,50 @@ $usuarioSelect .= '</select>';
             $('#id').val(data.id);
             $('#nome').val(data.nome);
             $('#usuario_id').val(data.usuario_id);
-            $('#ativado').val(data.ativado);
+            $( "#ativado" ).prop( "checked", data.ativado );
         }, 'json');
     }
+
+
+    function getExerciciosByTreino(treinoId){
+        $.post('ajax/treino_exercicios.php', {
+            action : 'getExerciciosByTreino',
+            treinoId: treinoId
+        }, function (data){
+
+            const ul = $('<ul>', {class: "mylist"}).append(
+                data.map(exercicio =>
+                    $("<li>").append($("<a>").text(exercicio.nome))
+                )
+            );
+            
+            $("#exercise-list").html(ul);
+        }, 'json');
+    }
+
+
+    function getExerciciosNotInTreino(treinoId) {
+        $.post('ajax/treino_exercicios.php', {
+            action : 'getExerciciosNotInTreino',
+            treinoId: treinoId
+        }, function (data){
+            const select = $('#exercise-select')
+
+            select.empty();
+
+            if(data.length === 0) {
+                select.append('<option value="" disabled selected>Todos exercícios estão no treino</option>')
+            }
+
+            $.each(data, function(key, value) {
+                select.append($('<option>', { value : value.id }).text(value.nome));
+            });
+
+        }, 'json');
+
+    }
+
+
 
     function prepareForCreate(){
         $('#nome').val('');
@@ -151,7 +220,11 @@ $usuarioSelect .= '</select>';
     }
 
     function modalUpdate(id){
-        carregaDadosClienteJSon(id, 'update');
+        getTreino(id, 'update');
+
+        getExerciciosByTreino(id);
+
+        getExerciciosNotInTreino(id);
 
         $('#submitModalExercicio').attr('name', 'update');
 
@@ -173,7 +246,7 @@ $usuarioSelect .= '</select>';
 
         if (result) {
             $.post('ajax/baseAjax.php', {
-                action : 'checkForRelation',
+                action : 'hasRelations',
                 model: 'Treino',
                 id: id
             }, async (relationExists) => {

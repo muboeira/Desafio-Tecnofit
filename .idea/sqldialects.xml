@@ -1,11 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="SqlDialectMappings">
-    <file url="file://$PROJECT_DIR$/public/index.php" dialect="GenericSQL" />
+    <file url="file://$PROJECT_DIR$/db_dump.sql" dialect="MySQL" />
+    <file url="file://$PROJECT_DIR$/public/index.php" dialect="MySQL" />
+    <file url="file://$PROJECT_DIR$/src/Models/Exercicio.php" dialect="MySQL" />
+    <file url="PROJECT" dialect="MySQL" />
   </component>
   <component name="SqlResolveMappings">
-    <file url="file://$PROJECT_DIR$/src/Models/Exercicio.php" scope="{&quot;node&quot;:{  &quot;@negative&quot;:&quot;1&quot;,  &quot;group&quot;:{   &quot;@kind&quot;:&quot;root&quot;,   &quot;node&quot;:{    &quot;name&quot;:{     &quot;@qname&quot;:&quot;ec33bd0e-4dca-455a-9aa4-ddc049a33bf2&quot;    },    &quot;group&quot;:{     &quot;@kind&quot;:&quot;schema&quot;,     &quot;node&quot;:{      &quot;name&quot;:{       &quot;@qname&quot;:&quot;tecnofit&quot;      }     }    }   }  } }}" />
-    <file url="file://$PROJECT_DIR$/src/Models/Usuario.php" scope="{&quot;node&quot;:{  &quot;@negative&quot;:&quot;1&quot;,  &quot;group&quot;:{   &quot;@kind&quot;:&quot;root&quot;,   &quot;node&quot;:{    &quot;name&quot;:{     &quot;@qname&quot;:&quot;ec33bd0e-4dca-455a-9aa4-ddc049a33bf2&quot;    },    &quot;group&quot;:{     &quot;@kind&quot;:&quot;schema&quot;,     &quot;node&quot;:{      &quot;name&quot;:{       &quot;@qname&quot;:&quot;tecnofit&quot;      }     }    }   }  } }}" />
+    <file url="file://$PROJECT_DIR$/src/Models/Exercicio.php" scope="{&quot;node&quot;:{  &quot;@negative&quot;:&quot;1&quot;,  &quot;group&quot;:{   &quot;@kind&quot;:&quot;root&quot;,   &quot;node&quot;:{    &quot;name&quot;:{     &quot;@qname&quot;:&quot;f12c2d78-4988-4510-b90d-c47b62b551f1&quot;    }   }  } }}" />
+    <file url="file://$PROJECT_DIR$/src/Models/Usuario.php" scope="{&quot;node&quot;:{  &quot;@negative&quot;:&quot;1&quot;,  &quot;group&quot;:{   &quot;@kind&quot;:&quot;root&quot;,   &quot;node&quot;:{    &quot;name&quot;:{     &quot;@qname&quot;:&quot;f12c2d78-4988-4510-b90d-c47b62b551f1&quot;    }   }  } }}" />
     <file url="PROJECT" scope="{&quot;node&quot;:{  &quot;@negative&quot;:&quot;1&quot;,  &quot;group&quot;:{   &quot;@kind&quot;:&quot;root&quot;,   &quot;node&quot;:{    &quot;name&quot;:{     &quot;@qname&quot;:&quot;ec33bd0e-4dca-455a-9aa4-ddc049a33bf2&quot;    },    &quot;group&quot;:{     &quot;@kind&quot;:&quot;schema&quot;,     &quot;node&quot;:{      &quot;name&quot;:{       &quot;@qname&quot;:&quot;tecnofit&quot;      }     }    }   }  } }}" />
   </component>
 </project>

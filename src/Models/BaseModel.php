@@ -5,8 +5,8 @@ class BaseModel {
 
     private \PDO $conn;
     private string $server = 'localhost';
-    private string $username = 'root';
-    private string $password = 'admin';
+    private string $username = 'admin';
+    private string $password = 'Admin@123';
     private string $dbname = 'tecnofit';
 
 // Create connection

@@ -143,7 +143,7 @@ HTML;
 
         if (result) {
              $.post('ajax/baseAjax.php', {
-                action : 'checkForRelation',
+                action : 'hasRelations',
                  model: 'Exercicio',
                 id: id
             }, async (relationExists) => {

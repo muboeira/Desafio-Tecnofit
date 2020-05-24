@@ -23,10 +23,10 @@ switch ($action) {
             $results = $modelHelper->fetchById($id);
         }
         break;
-    case 'checkForRelation':
+    case 'hasRelations':
         if(isset($_POST['id'])) {
             $id = $_POST['id'];
-            $results = $modelHelper->checkForRelation($id);
+            $results = $modelHelper->hasRelations($id);
         }
         break;
     case 'delete':
