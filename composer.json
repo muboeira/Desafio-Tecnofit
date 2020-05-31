@@ -11,11 +11,12 @@
     ],
     "autoload": {
         "psr-4": {
-            "Models\\": "src/"
+            "Models\\": "src/Models/"
         }
     },
     "require": {
         "ext-pdo": "*",
-        "ext-json": "*"
+        "ext-json": "*",
+        "components/font-awesome": "^5.12"
     }
 }

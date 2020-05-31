@@ -109,12 +109,23 @@ class Treino extends BaseModel
     }
 
     public function save() {
+
+        $usuarioId = $this->getUsuarioId();
+
+        if($this->getTreinoByName($this->getNome())) {
+            return ['data' => false, 'message'=> 'Nome já existe'];
+        }
+
+        if($this->getAtivado() && $this->usuarioHasTreinoByStatus($usuarioId, true)){
+            $this->updateAtivadoByUser($usuarioId, false);
+        }
+
         $this->query(
             'INSERT INTO treinos (nome, ativado, usuario_id) VALUES (:NOME, :ATIVADO, :USUARIO_ID)',
             [
                 ':NOME'  => $this->getNome(),
                 ':ATIVADO' => $this->getAtivado(),
-                ':USUARIO_ID' => $this->getUsuarioId()
+                ':USUARIO_ID' => $usuarioId
             ]);
     }
 
@@ -129,7 +140,9 @@ class Treino extends BaseModel
 
     public function delete($id) {
         if($this->hasRelations($id)) {
-            return false;
+            $this->query('DELETE FROM treino_exercicios WHERE treino_id = :ID',[
+                ':ID' => $id
+            ]);
         }
 
         $results = $this->query('DELETE FROM treinos WHERE id = :ID',[
@@ -137,5 +150,64 @@ class Treino extends BaseModel
         ]);
 
         return $results > 0;
+    }
+
+    public function usuarioHasTreinoByStatus(int $usuarioId, bool $ativado = true)
+    {
+        $results = $this->select('SELECT count(*) as total FROM treinos WHERE usuario_id = :USUARIO_ID AND ATIVADO = :ATIVADO',[
+            ':USUARIO_ID' => $usuarioId,
+            ':ATIVADO' => $ativado
+        ]);
+
+        return ((int)$results[0]['total']) > 0;
+    }
+
+    public function getTreinoAtivoByUsuarioId(int $usuarioId)
+    {
+        $result = $this->select('SELECT * FROM treinos WHERE usuario_id = :USUARIO_ID AND ativado = true',[
+            ':USUARIO_ID' => $usuarioId,
+        ]);
+
+        if(count($result) > 0) {
+            $this->setData($result[0]);
+            return true;
+        }
+
+        return false;
+    }
+
+    public function getTreinoByName(string $nome)
+    {
+        $results = $this->select('SELECT count(*) as total FROM treinos WHERE nome = :NOME',[
+            ':NOME' => $nome,
+        ]);
+
+        return ((int)$results[0]['total']) > 0;
+    }
+
+    public function updateAtivadoByUser(int $usuarioId, bool $ativado)
+    {
+        $bool = $ativado ? 1 : 0;
+
+        return $this->query('UPDATE treinos SET ativado = :ATIVADO WHERE usuario_id = :USUARIO_ID',[
+            ':ATIVADO' => $bool,
+            ':USUARIO_ID' => $usuarioId,
+        ]);
+    }
+
+    public function updateAtivadoById(int $treinoId, bool $ativado)
+    {
+        $bool = $ativado ? 1 : 0;
+
+        if($ativado) {
+            $treino = $this->fetchById($treinoId);
+
+            $this->updateAtivadoByUser($treino['usuario_id'], false);
+        }
+
+        return $this->query('UPDATE treinos SET ativado = :ATIVADO WHERE id = :ID',[
+            ':ATIVADO' => $bool,
+            ':ID' => $treinoId,
+        ]);
     }
 }

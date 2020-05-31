@@ -9,6 +9,7 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="stylesheet" href="/assets/css/bootstrap.css">
     <link rel="stylesheet" href="/assets/css/styles.css">
+    <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
     <title></title>
 </head>
 <body>
@@ -33,11 +34,13 @@
                 <li class="nav-item">
                     <a class="nav-link" href="/exercicios.php">Exercícios</a>
                 </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/treinos.php">Treinos</a>
-                        </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/treinos.php">Treinos</a>
+                </li>
                 <?php  } ?>
-
+                <li class="nav-item">
+                    <a class="nav-link" href="/treinar.php">Treinar</a>
+                </li>
                 <li class="nav-item">
                     <a class="nav-link" href="/logout.php">Logout</a>
                 </li>

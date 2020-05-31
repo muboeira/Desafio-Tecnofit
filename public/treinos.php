@@ -7,7 +7,7 @@ if (empty($_SESSION['user_id']) || $_SESSION['user_role'] !== 'admin') {
     header('Location: login.php');
 }
 
-$treinoHelper = new Models\Treino();
+$treinoHelper = new \Models\Treino();
 
 $usuarioHelper = new Models\Usuario();
 
@@ -26,17 +26,33 @@ $treinos = $treinoHelper->fetchAll();
 
 foreach ($treinos as $key => $treino) {
     $indice = $key + 1;
-    $usuario = $usuarioHelper->fetchById($treino['id']);
-    $ativado = $treino['ativado'] ? 'sim' : 'nao';
+    $usuario = $usuarioHelper->fetchById($treino['usuario_id']);
+    $ativado = $treino['ativado'] ? 'checked' : '';
     $treinoTable .= <<<HTML
  <tr> 
     <td>${indice}</td>
     <td>${treino['nome']}</td>
     <td>${usuario['nome']}</td>
-    <td>${ativado}</td>
     <td>
-        <button class="btn btn-warning" onclick="modalUpdate(${treino['id']})" >Editar</button>
-        <button class="btn btn-danger" onclick="modalDelete(${treino['id']}, this)" >Deletar</button>
+        <label class="switch">
+            <input 
+                type="checkbox" 
+                id="ativado-${treino['id']}" 
+                onchange="updateAtivado(${treino['id']}, this)" 
+                ${ativado}
+            />
+            <span class="slider round"></span>
+        </label>
+    </td>
+    <td>
+        <button class="btn btn-warning" onclick="modalUpdate(${treino['id']})" >
+            <i class="fa fa-pencil" aria-hidden="true"></i>
+        </button>
+        <button class="btn btn-danger" onclick="modalDelete(${treino['id']}, this)" >
+            <i class="fa fa-trash" aria-hidden="true"></i>
+        </button>
+        <button class="btn btn-primary" onclick="modalTreinoExercicio(${treino['id']}, this)" >
+        <i class="fa fa-exclamation-circle" aria-hidden="true"></i></button>
     </td>
  </tr>
 HTML;
@@ -45,7 +61,8 @@ HTML;
 
 $usuarios = $usuarioHelper->fetchAll();
 
-$usuarioSelect = '<select name="usuario_id" class="custom-select">';
+$usuarioSelect = '<select name="usuario_id" class="custom-select">
+<option value="" disabled selected>Selecione um usuário</option>';
 
 foreach($usuarios as $key => $usuario) {
     $usuarioSelect .= <<<HTML
@@ -69,7 +86,7 @@ $usuarioSelect .= '</select>';
                     </div>
                     <div class="col-sm-6">
                         <button href="#addEmployeeModal" class="btn btn-success float-right" data-toggle="modal" onclick="modalCreate()"><span
-                                class="glyphicon glyphicon-plus"></span><span>Adicionar novos treinos</span></button>
+                                class="glyphicon glyphicon-plus"></span><span><i class="fa fa-plus" aria-hidden="true"></i></span></button>
                     </div>
                 </div>
             </div>
@@ -106,45 +123,21 @@ $usuarioSelect .= '</select>';
                 <div class="modal-body">
                     <div class="form-group">
                         <label for="nome">Nome</label>
-                        <input type="text" class="form-control" id="nome" name="nome">
+                        <input type="text" class="form-control" id="nome" name="nome" placeholder="Nome">
                     </div>
-                    <div class="form-group">
-                        <label for="usuario_id">Usuário</label>
-                        <?php echo $usuarioSelect; ?>
-                    </div>
-                    <div class="custom-control custom-checkbox">
-                        <input type="checkbox" class="custom-control-input" id="ativado" name="ativado">
-                        <label class="custom-control-label" for="ativado">Ativado</label>
-                    </div>
-                    <div id="treino-exercicios">
-                        <div class="border p-1">
-                            <h4>Adicionar novo exercício ao treino</h4>
-                            <div class="form-row mt-3 align-items-center">
-                                <div class="col-sm-4 my-1">
-                                    <div class="form-group">
-                                        <label for="exercicio-select">Exercício</label>
-                                        <select class="custom-select" name="exercicio" id="exercise-select"></select>
-                                    </div>
-                                </div>
-
-                                <div class="col-sm-4 my-1">
-                                    <div class="form-group">
-                                        <label for="sessoes">Sessões</label>
-                                        <input type="number" min="1" max="50" class="form-control" name="sessoes" id="sessoes" value="1"/>
-                                    </div>
-                                </div>
-
-                                <div class="col-auto mt-3 my-1">
-                                    <button type="button" class="btn btn-success" onclick="createExercicioOnTreino()">Adicionar</button>
-                                </div>
-                            </div>
+                    <div class="form-row">
+                        <div class="col-md-6 mb-3">
+                            <label for="usuario_id">Usuário</label>
+                            <?php echo $usuarioSelect; ?>
                         </div>
-
-                        <div class="mt-3" id="exercise-list">
-
+                        <div class="col-md-6 mb-3 d-flex justify-content-center align-items-center" style="flex-direction: column">
+                            <label>Ativado</label>
+                            <label class="switch">
+                                <input type="checkbox" id="ativado" name="ativado" checked>
+                                <span class="slider round"></span>
+                            </label>
                         </div>
                     </div>
-
                     <input type="hidden" name="id" id="id" value=""/>
                 </div>
                 <div class="modal-footer">
@@ -156,11 +149,61 @@ $usuarioSelect .= '</select>';
     </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
 
+<div class="modal hide fade bs-example-modal-lg" id="modalTreinoExercicio">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Exercícios do Treino</h4>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span
+                            class="sr-only">Fechar</span></button>
+
+            </div>
+                <div class="modal-body">
+                    <input type="hidden" id="treino-id" value=""/>
+                    <div id="treino-exercicios">
+                        <div class="card">
+                            <div class="card-header ">
+                                <h5 class="card-title mb-0">Adicionar exercício</h5>
+                            </div>
+                            <div class="form-row mt-3 align-items-center card-body">
+                                <div class="col-sm-8 my-1">
+                                    <div class="form-group">
+                                        <label for="exercicio-select">Exercício</label>
+                                        <select class="custom-select" name="exercicio" id="exercise-select"></select>
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-2 my-1">
+                                    <div class="form-group">
+                                        <label for="sessoes">Sessões</label>
+                                        <input type="number" min="1" max="50" class="form-control" name="sessoes" id="sessoes" value="1"/>
+                                    </div>
+                                </div>
+
+                                <div class="col-auto mt-1 my-1" style="height: 23px;">
+                                    <button type="button" class="btn btn-success" onclick="createExercicioOnTreino()"><i class="fa fa-plus" aria-hidden="true"></i></button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <h5 class="mt-4">Exercícios</h5>
+                        <div class="mt-3 border border rounded" id="exercise-list" style="height: 300px;">
+
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">Fechar</button>
+                </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
 
 <?php include_once('views/footer.php') ?>
 
 <script>
-    $('#myModal').on('hidden.bs.modal', function () {
+    $('#modalTreinoExercicio').on('hidden.bs.modal', function () {
         $("#exercise-list").html('');
     })
 
@@ -178,9 +221,19 @@ $usuarioSelect .= '</select>';
         }, 'json');
     }
 
+    function modalTreinoExercicio(treinoId) {
+        $('#treino-id').val(treinoId);
+
+        getExerciciosByTreino(treinoId);
+
+        getExerciciosNotInTreino(treinoId);
+
+        $('#modalTreinoExercicio').modal('show');
+    }
+
     function createExercicioOnTreino()
     {
-        const treinoId = $('#id').val();
+        const treinoId = $('#treino-id').val();
 
         const exercicioId = $('#exercise-select').val();
 
@@ -231,14 +284,16 @@ $usuarioSelect .= '</select>';
             treinoId: treinoId
         }, function (data){
 
-            const ul = $('<ul>', {class: "mylist"}).append(
+            const h5 = `<h5>Exercícios</h5>`;
+
+            const ul = $('<ul>', {class: "list-group", style: "max-height: 100%; overflow: auto;"}).append(
                 data.map(exercicio =>
-                    $("<li>").append($("<p>").text(`nome: ${exercicio.nome} sessoes: ${exercicio.sessoes}`)
+                    $("<li class='list-group-item'>").append($("<p>").text(`Nome: ${exercicio.nome} sessoes: ${exercicio.sessoes}`)
                         .append(
                             `<button
-                                type='button' class='btn btn-danger ml-2'
+                                type='button' class='float-right btn btn-danger ml-2'
                                 onclick='deleteTreinoExercicio(${exercicio.treino_id},${exercicio.id})'>
-                                Deletar
+                                <i class="fa fa-trash" aria-hidden="true"></i>
                             </button>`))
                 )
             );
@@ -259,6 +314,8 @@ $usuarioSelect .= '</select>';
 
             if(data.length === 0) {
                 select.append('<option value="" disabled selected>Todos exercícios estão no treino</option>')
+            } else {
+                select.append('<option value="" disabled selected>Selecione um exercício</option>')
             }
 
             $.each(data, function(key, value) {
@@ -276,20 +333,27 @@ $usuarioSelect .= '</select>';
         $('#ativado').val(true);
         $('#id').val(0);
         $('#submitModalExercicio').attr('name', 'create');
-        $('#treino-exercicios').hide();
     }
 
     function modalUpdate(id){
         getTreino(id, 'update');
 
-        getExerciciosByTreino(id);
-
-        getExerciciosNotInTreino(id);
-
         $('#submitModalExercicio').attr('name', 'update');
 
         $('#modalExercicio').modal('show');
+    }
 
+    function updateAtivado(treinoId, element) {
+        const ativado = $(element).prop('checked');
+
+
+        $.post('ajax/treinos.php', {
+            action : 'updateAtivadoById',
+            treinoId: treinoId,
+            ativado: ativado
+        },() => {
+            location.reload();
+        }, 'json');
     }
 
     function modalCreate(){
@@ -305,31 +369,18 @@ $usuarioSelect .= '</select>';
         let message = '';
 
         if (result) {
+
             $.post('ajax/baseAjax.php', {
-                action : 'hasRelations',
+                action : 'delete',
                 model: 'Treino',
                 id: id
-            }, async (relationExists) => {
-                if(relationExists){
-                    message = 'Treino está sendo utilizado.';
-
-                } else {
-
-                    await $.post('ajax/baseAjax.php', {
-                        action : 'delete',
-                        model: 'Treino',
-                        id: id
-                    },(deleted) => {
-
-                        message = 'Aconteceu um erro e não foi possível deletar.';
-                        if(deleted){
-                            message = 'Treino foi deletado.';
-                            $(element).closest( "tr" ).remove();
-                        }
-                    }, 'json');
-
-                    alert(message);
+            },(deleted) => {
+                message = 'Aconteceu um erro e não foi possível deletar.';
+                if(deleted){
+                    message = 'Treino foi deletado.';
+                    $(element).closest( "tr" ).remove();
                 }
+                alert(message);
             }, 'json');
 
 

@@ -6,9 +6,4 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
-    'Models\\BaseModel' => $baseDir . '/src/Models/BaseModel.php',
-    'Models\\Exercicio' => $baseDir . '/src/Models/Exercicio.php',
-    'Models\\Models\\Paginator' => $baseDir . '/src/Models/Paginator.php',
-    'Models\\Treino' => $baseDir . '/src/Models/Treino.php',
-    'Models\\Usuario' => $baseDir . '/src/Models/Usuario.php',
 );
