@@ -3,7 +3,7 @@ require_once '../vendor/autoload.php';
 
 session_start();
 
-if (empty($_SESSION['user_id']) || $_SESSION['user_role'] !== 'admin') {
+if (empty($_SESSION['user_id'])) {
     header('Location: /../login.php');
 }
 
